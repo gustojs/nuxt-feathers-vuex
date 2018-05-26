@@ -3,7 +3,31 @@
 [![npm](https://img.shields.io/npm/dt/nuxt-feathers-vuex.svg?style=flat-square)](https://npmjs.com/package/nuxt-feathers-vuex)
 [![js-standard-style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
 
-> Feathers-Vuex module for Nuxt
+Nuxt-Feathers-Vuex provides default setup for using Feathers-Vuex library, configurable through `nuxt.config.js` and with the option to automatically generate service files.
+
+It's been designed to let the user override most of configuration but if you want more freedom or find that your setup strays too far away, it may be better to just use raw Feathers-Vuex.
+
+The documentation focuses purely on this module and doesn't explain how to use Feathers-Vuex itself. It's assumed the user knows it already.
+
+- [Features](#features)
+  - [Ready](#ready)
+  - [Todo](#todo)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Default options](#default-options)
+  - [URL](#url)
+  - [ID field](#id-field)
+  - [User service](#user-service)
+  - [Auth module](#auth-module)
+  - [Cookie](#cookie)
+  - [Plugin](#plugin)
+  - [Generate](#generate)
+  - [Verbose](#verbose)
+  - [Services](#services)
+- [Vuex store](#vuex-store)
+- [Service files](#service-files)
+- [Auth plugin](#auth-plugin)
+- [Middleware](#middleware)
 
 ## Features
 
@@ -21,7 +45,7 @@
 - support for Vuex module mode
 - tutorial for using environment variables as config
 
-## Setup
+## Installation
 
 First, let's add `nuxt-feathers-vuex` dependency using yarn or npm to your project. Nuxt modules handle all needed dependencies under the hood, so we don't have to add Feathers, FeathersVuex or Socket.io by ourselves.
 
@@ -37,7 +61,9 @@ Now it's time to register Nuxt-Feathers-Vuex as a modules in `nuxt.config.js`.
   ]
 ```
 
-## Available options
+## Configuration
+
+### Default options
 
 These are all default values for options object. If it covers some of your preferenced settings, feel free to ommit these options.
 
@@ -63,7 +89,7 @@ Socket.io requires an URL to your Feathers backend. The default http://localhost
 
 References: [Feathersjs](https://docs.feathersjs.com/api/client/socketio.html#socketiosocket)
 
-### Database ID field (String)
+### ID field (String)
 
 FeathersClient requires to know which document field is used as ID in your database. For example while MySQL may use `id`, Mongodb by default uses `_id`.
 
@@ -75,11 +101,11 @@ Feathers-Vuex's `auth` service handles authentication for us, but we still need 
 
 References: [Feathers-Vuex](https://feathers-plus.github.io/v1/feathers-vuex/auth-module.html#Configuration)
 
-### Auth module name (String)
+### Auth module (String)
 
 If by any chance you wish to use non-standard name for `auth` module, configure it with this option.
 
-### Cookie name (String)
+### Cookie (String)
 
 As we store authentication data in a cookie, we need to name it. Don't hesitate to use your imagination, sky is the limit.
 
@@ -237,11 +263,13 @@ export const hooks = {
 
 ## Auth plugin
 
-The Nuxt-Feathers-Vuex module automatically registers `auth` plugin, but we can customize its store with a following file in `~/store/services` folder:
+The Nuxt-Feathers-Vuex module registers `auth` plugin automatically, but we can customize its store with a following content:
 
 ```js
 export const store = {}
 ```
+
+Remember that if you don't use `generate`, the file name has to equal `authModule` option value, which by default is `auth`.
 
 We don't export `hooks` this time, since `auth` is not a service. Luckily we've got another toy to play with. Here's the `verbose` version:
 
@@ -254,6 +282,9 @@ export const store = {
     // getters
   },
   mutations: {
+        // handle error like a boss
+      })
+    }
     // mutations
   },
   actions: {
@@ -273,20 +304,20 @@ Notice the `onInitAuth` action. It's called by Feathers-Vuex's `initAuth` and au
 
 ## Middleware
 
-There's only one version of middleware. If the route is public and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
+The available middleware is very basic. If the route is public and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
 
 ```js
 export default function ({ store, redirect, route }) {
   const { auth } = store.state
   if (!auth.publicPages.includes(route.name) && !auth.payload) {
-    return redirect('<%= options.redirect %>')
+    return redirect(/* route name */)
   }
 }
 ```
 
-If you prefer more complex solution, just overwrite the file (or create it if you don't use `generate` option).
+If you prefer more complex solution, just overwrite the file (or create one if you don't use `generate` option).
 
-Unfortunately the module can't register our middleware, so we still need to do it manually in `nuxt.config.js`:
+Unfortunately the module can't register our middleware itself, so we still need to do it manually in `nuxt.config.js`:
 
 ```js
   middleware: [
