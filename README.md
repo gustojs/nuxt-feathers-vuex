@@ -3,11 +3,13 @@
 [![npm](https://img.shields.io/npm/dt/nuxt-feathers-vuex.svg?style=flat-square)](https://npmjs.com/package/nuxt-feathers-vuex)
 [![js-standard-style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
 
-Nuxt-Feathers-Vuex provides default setup for using Feathers-Vuex library, configurable through `nuxt.config.js` and with the option to automatically generate service files.
+Nuxt-Feathers-Vuex provides default setup for using [Feathers-Vuex](https://github.com/feathers-plus/feathers-vuex) library, configurable through `nuxt.config.js` and with the option to automatically generate service files.
 
 It's been designed to let the user override most of configuration but if you want more freedom or find that your setup strays too far away, it may be better to just use raw Feathers-Vuex.
 
-The documentation focuses purely on this module and doesn't explain how to use Feathers-Vuex itself. It's assumed the user knows it already.
+The documentation focuses purely on this module and doesn't explain how to use Feathers-Vuex itself. It's assumed the user knows it already. If not, please visit its [documentation](https://feathers-plus.github.io/v1/feathers-vuex).
+
+In case of questions, you can often find me on official chats of either Feathers or Vue.
 
 - [Features](#features)
   - [Ready](#ready)
@@ -22,28 +24,32 @@ The documentation focuses purely on this module and doesn't explain how to use F
   - [Cookie](#cookie)
   - [Plugin](#plugin)
   - [Generate](#generate)
+  - [Middleware](#middleware)
   - [Verbose](#verbose)
   - [Services](#services)
 - [Vuex store](#vuex-store)
 - [Service files](#service-files)
 - [Auth plugin](#auth-plugin)
-- [Middleware](#middleware)
+- [Default middleware](#default-middleware)
 
 ## Features
 
 ### Ready
 
 - hide common logic under the hood
-- automatically register all services
-- generate store, services and other files
-- scaffold in minimal or verbose mode
+- provide all required npm packages
+- automatically register services from `services` folder
+- generate store and services files
+- scaffold services in minimal or verbose mode
 - provide basic middleware
 - automatically log the user in
 
 ### Todo
 
-- support for Vuex module mode
-- tutorial for using environment variables as config
+- support Vuex module mode
+- support peer dependencies
+- support environment variables
+- register services in `services` array even without files in `services` folder
 
 ## Installation
 
@@ -53,13 +59,27 @@ First, let's add `nuxt-feathers-vuex` dependency using yarn or npm to your proje
 $ npm install nuxt-feathers-vuex
 ```
 
-Now it's time to register Nuxt-Feathers-Vuex as a modules in `nuxt.config.js`.
+Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`.
 
 ```js
   modules: [
-    [ 'nuxt-feathers-vuex', { /* options */ }]
+    [ 'nuxt-feathers-vuex', {
+      services: ['service1', 'service2']
+      /* other options */ 
+    }]
   ]
 ```
+
+Default configuration will generate service files together with the ones below by itself:
+```
+~/store/index.js
+~/store/services/auth.js
+~/middleware/feathers.js
+```
+
+That's it, you're now ready to use Feathers-Vuex with all the bells and whistles.
+
+Remember that when you tweak `nuxt.config.js` while your app is working, you need to manually restart your Nuxt app before the changes apply. HMR mechanism doesn't see this file.
 
 ## Configuration
 
@@ -125,24 +145,19 @@ Other than service files, you'll also get the files for `store`, `middleware` an
 
 The files are generated with `standardjs` ESLint settings. They are also protected against overwriting - if they already exist, they won't be regenerated.
 
-Remember that if you turn this option off, you'll need to manually setup the Vuex store:
+Remember that if you turn this option off, you'll need to manually setup the Vuex store.
 
-```js
-import { createStore } from '~/.nuxt/feathers'
-export default createStore()
-```
+### Middleware (Boolean)
+
+Turn this option off if you use `generate` but don't plan to use `middleware/feathers.js` file.
 
 ### Verbose (Boolean)
 
-By default Nuxt-Feathers-Vuex generates files with minimal necessary content, but you may want them more verbose, with all properties ready to fill in. In such a case, just turn this option on.
-
-Further in the README you'll see what each file has to offer in both minimal and verbose variants.
+By default Nuxt-Feathers-Vuex generates services with close to minimal necessary content, but you may want them more verbose, with all properties ready to fill in. In such a case, just turn this option on.
 
 ### Services (Array of Strings)
 
 Here you can provide the list of service names for `generate` option. 
-
-If you turned `generate` off but listed some names, these services will still be registered in the store with default settings.
 
 ## Vuex store
 
@@ -150,16 +165,7 @@ If you turned `generate` off but listed some names, these services will still be
 
 In order to work with Feathers-Vuex, we need to initialize few things in the store, such as `initAuth` function or registering `auth` plugin. We also need to register plugins for each Feathers service we plan to use in our app. 
 
-Feathers-Vuex docs explain how to do it manually, but our module can take care of all that for us, keeping most of the boilerplate under the hood:
-
-```js
-import { createStore } from '~/.nuxt/feathers'
-export default createStore()
-```
-
-That's the bare minimum to make Feathers-Vuex work. Remember to add it manually if you don't use `generate` option.
-
-What about the `verbose` version? It looks like this:
+Feathers-Vuex docs explain how to do it manually, but our module can take care of all that for us, keeping most of the logic under the hood.
 
 ```js
 import { createStore } from '~/.nuxt/feathers'
@@ -186,14 +192,17 @@ export default createStore({
 })
 ```
 
-If we don't want to keep each service setup separately, we can just pass it here with `service('serviceName')`. In such a case we need to import also `service` function.
+Remember to add it manually if you don't use `generate` option.
+
+If we don't want to register services through `nuxt.config.js`, we can just pass them with `service('serviceName')`. In such a case we need to additionally import `service` function.
 
 ```js
 import { createStore, service } from '~/.nuxt/feathers'
 
 export default createStore({
   plugins: [
-    service('messages')
+    service('messages'),
+    service('users')
   ]
 })
 ```
@@ -202,14 +211,20 @@ export default createStore({
 
 The module automatically registers Vuex store for each file in the `~/store/services` folder based on the name of the file.
 
-Such files should export a `store` object with additional logic for the store module and `hooks` array with Feathers hooks for the service. You can add them manually or `generate`, it's your choice.
+Such files should export a `store` object with additional logic for the store module, `hooks` array with Feathers hooks and `options` object with custom service options. You can add them manually or `generate`, it's your choice.
 
 ```js
-export const store = {}
+export const store = {
+  instanceDefaults: {
+    // instance defaults
+  }
+}
+
 export const hooks = {}
+export const options = {}
 ```
 
-Here's how files generated with `verbose` option look like:
+You can safely remove unused export statements. Here's how service files generated with `verbose` option look like:
 
 ```js
 export const store = {
@@ -232,32 +247,43 @@ export const store = {
 
 export const hooks = {
   before: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    // all: [],
+    // find: [],
+    // get: [],
+    // create: [],
+    // update: [],
+    // patch: [],
+    // remove: []
   },
   after: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    // all: [],
+    // find: [],
+    // get: [],
+    // create: [],
+    // update: [],
+    // patch: [],
+    // remove: []
   },
   error: {
-    all: [],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    // all: [],
+    // find: [],
+    // get: [],
+    // create: [],
+    // update: [],
+    // patch: [],
+    // remove: []
   }
+}
+
+export const options = {
+  // idField: '',
+  // nameStyle: '',
+  // namespace: '',
+  // autoRemove: false,
+  // enableEvents: true,
+  // addOnUpsert: false,
+  // skipRequestIfExists: false,
+  // modelName: ''
 }
 ```
 
@@ -265,13 +291,7 @@ export const hooks = {
 
 The Nuxt-Feathers-Vuex module registers `auth` plugin automatically, but we can customize its store with a following content:
 
-```js
-export const store = {}
-```
-
-Remember that if you don't use `generate`, the file name has to equal `authModule` option value, which by default is `auth`.
-
-We don't export `hooks` this time, since `auth` is not a service. Luckily we've got another toy to play with. Here's the `verbose` version:
+We don't export `hooks` this time, since `auth` is not a service. Luckily we've got another toy to play with. Let's take a look at our generated file:
 
 ```js
 export const store = {
@@ -282,9 +302,6 @@ export const store = {
     // getters
   },
   mutations: {
-        // handle error like a boss
-      })
-    }
     // mutations
   },
   actions: {
@@ -300,11 +317,13 @@ export const store = {
 }
 ```
 
-Notice the `onInitAuth` action. It's called by Feathers-Vuex's `initAuth` and automatically logs us in (if possible) on website's start. Feel free to remove its code if you don't need it though - it will still work under the hood.
+Notice the `onInitAuth` action. It's called by Feathers-Vuex's `initAuth` and automatically logs us in (if possible) on website's start. Feel free to remove its code if you don't plan to customize it though.
 
-## Middleware
+Remember that if you don't use `generate` but still want to customize the plugin, you can't pass it in the store's `plugins` array - you can only do that through `service/name.js` file where `name` is equal `authModule` option value (`auth` by default).
 
-The available middleware is very basic. If the route is public and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
+## Default Middleware
+
+The available middleware you can `generate` is very basic. If the route is public and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
 
 ```js
 export default function ({ store, redirect, route }) {
@@ -328,10 +347,6 @@ Unfortunately the module can't register our middleware itself, so we still need 
 It's also up to us to make sure the redirect destination page actually exists.
 
 References: [Feathers-Vuex](https://feathers-plus.github.io/v1/feathers-vuex/guide.html#Authentication-storage-with-Nuxt)
-
-## Contact
-
-You can often find me on official chats of either Feathers or Vue.
 
 ## Development
 
