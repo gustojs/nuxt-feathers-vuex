@@ -1,6 +1,6 @@
 {
   "name": "nuxt-feathers-vuex",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Feathers-Vuex module for Nuxt",
   "license": "MIT",
   "contributors": [
