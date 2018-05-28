@@ -143,7 +143,7 @@ Nuxt-Feathers-Vuex allows you to generate all boilerplate files, so that you don
 
 Other than service files, you'll also get the files for `store`, `middleware` and `auth` module (with the name specified by `authModule` option).
 
-The files are generated with `standardjs` ESLint settings. They are also protected against overwriting - if they already exist, they won't be regenerated.
+The files are generated with style guide that follows example code in Nuxt documentations. They are also protected against overwriting - if they already exist, they won't be regenerated. An exception here is the plugin file, which depends on the settings so it has to be rebuilt continously.
 
 Remember that if you turn this option off, you'll need to manually setup the Vuex store.
 
@@ -168,7 +168,7 @@ In order to work with Feathers-Vuex, we need to initialize few things in the sto
 Feathers-Vuex docs explain how to do it manually, but our module can take care of all that for us, keeping most of the logic under the hood.
 
 ```js
-import { createStore } from '~/.nuxt/feathers'
+import { createStore } from '~/plugins/feathers'
 
 export default createStore({
   modules: {
@@ -194,10 +194,10 @@ export default createStore({
 
 Remember to add it manually if you don't use `generate` option.
 
-If we don't want to register services through `nuxt.config.js`, we can just pass them with `service('serviceName')`. In such a case we need to additionally import `service` function.
+If we don't want to use `services` folder, we can just pass services with `service('serviceName')`. In such a case we need to additionally import `service` function.
 
 ```js
-import { createStore, service } from '~/.nuxt/feathers'
+import { createStore, service } from '~/plugins/feathers'
 
 export default createStore({
   plugins: [
@@ -221,13 +221,15 @@ export const store = {
 }
 
 export const hooks = {}
-export const options = {}
 ```
 
 You can safely remove unused export statements. Here's how service files generated with `verbose` option look like:
 
 ```js
 export const store = {
+  instanceDefaults: {
+    // instance defaults
+  },
   state: {
     // state
   },
@@ -239,9 +241,6 @@ export const store = {
   },
   actions: {
     // actions
-  },
-  instanceDefaults: {
-    // instance defaults
   }
 }
 
