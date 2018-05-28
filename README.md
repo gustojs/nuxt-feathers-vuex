@@ -11,6 +11,8 @@ The documentation focuses purely on this module and doesn't explain how to use F
 
 In case of questions, you can often find me on official chats of either Feathers or Vue.
 
+## Table of contents
+
 - [Features](#features)
   - [Ready](#ready)
   - [Todo](#todo)
@@ -59,9 +61,12 @@ First, let's add `nuxt-feathers-vuex` dependency using yarn or npm to your proje
 $ npm install nuxt-feathers-vuex
 ```
 
-Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`.
+Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`. Let's add a middleware too while we're at it.
 
 ```js
+  middleware: [
+    'middleware/feathers.js'
+  ],
   modules: [
     [ 'nuxt-feathers-vuex', {
       services: ['service1', 'service2']
@@ -72,6 +77,7 @@ Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`.
 
 Default configuration will generate service files together with the ones below by itself:
 ```
+~/plugins/feathers.js
 ~/store/index.js
 ~/store/services/auth.js
 ~/middleware/feathers.js
@@ -322,7 +328,7 @@ Remember that if you don't use `generate` but still want to customize the plugin
 
 ## Default Middleware
 
-The available middleware you can `generate` is very basic. If the route is public and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
+The available middleware you can `generate` is very basic. If the route is public (included in `auth/publicPages` array) and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
 
 ```js
 export default function ({ store, redirect, route }) {
