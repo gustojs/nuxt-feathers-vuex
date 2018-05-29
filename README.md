@@ -3,9 +3,9 @@
 [![npm](https://img.shields.io/npm/dt/nuxt-feathers-vuex.svg?style=flat-square)](https://npmjs.com/package/nuxt-feathers-vuex)
 [![js-standard-style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](http://standardjs.com)
 
-Nuxt-Feathers-Vuex provides default setup for using [Feathers-Vuex](https://github.com/feathers-plus/feathers-vuex) library, configurable through `nuxt.config.js` and with the option to automatically generate service files.
+Nuxt-Feathers-Vuex provides default setup for using the [Feathers-Vuex](https://github.com/feathers-plus/feathers-vuex) library, configurable through `nuxt.config.js` and with the option to automatically generate service files.
 
-It's been designed to let the user override most of configuration but if you want more freedom or find that your setup strays too far away, it may be better to just use raw Feathers-Vuex.
+It has been designed to let the user override most of configuration, but if you want more freedom or find that your setup strays too far away, it may be better to just use raw Feathers-Vuex.
 
 The documentation focuses purely on this module and doesn't explain how to use Feathers-Vuex itself. It's assumed the user knows it already. If not, please visit its [documentation](https://feathers-plus.github.io/v1/feathers-vuex).
 
@@ -59,6 +59,9 @@ First, let's add `nuxt-feathers-vuex` dependency using yarn or npm to your proje
 
 ```
 $ npm install nuxt-feathers-vuex
+or
+$ yarn add nuxt-feathers-vuxt
+$ yarn install
 ```
 
 Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`. Let's add a middleware too while we're at it.
@@ -91,7 +94,7 @@ Remember that when you tweak `nuxt.config.js` while your app is working, you nee
 
 ### Default options
 
-These are all default values for options object. If it covers some of your preferenced settings, feel free to ommit these options.
+These are all default values for options object. If it covers some of your preferenced settings, feel free to omit these options.
 
 ```js
   modules: [
@@ -111,7 +114,7 @@ These are all default values for options object. If it covers some of your prefe
 
 ### URL (String)
 
-Socket.io requires an URL to your Feathers backend. The default http://localhost:3000 is the address referenced across Feathersjs documentation as an example for development purposes. Of course, in production mode you'll want to change it.
+Socket.io requires an URL to your Feathers backend. The default http://localhost:3030 is the address referenced across Feathersjs documentation as an example for development purposes. Of course, in production mode you'll want to change it.
 
 References: [Feathersjs](https://docs.feathersjs.com/api/client/socketio.html#socketiosocket)
 
@@ -129,7 +132,7 @@ References: [Feathers-Vuex](https://feathers-plus.github.io/v1/feathers-vuex/aut
 
 ### Auth module (String)
 
-If by any chance you wish to use non-standard name for `auth` module, configure it with this option.
+If by any chance you wish to use a non-standard name for `auth` module, configure it with this option.
 
 ### Cookie (String)
 
@@ -169,7 +172,7 @@ Here you can provide the list of service names for `generate` option.
 
 ***Important**: Currently Nuxt-Feathers-Vuex supports only `classic` mode.*
 
-In order to work with Feathers-Vuex, we need to initialize few things in the store, such as `initAuth` function or registering `auth` plugin. We also need to register plugins for each Feathers service we plan to use in our app. 
+In order to work with Feathers-Vuex, we need to initialize few things in the store, such as the `initAuth` function or registering the `auth` plugin. We also need to register plugins for each Feathers service we plan to use in our app. 
 
 Feathers-Vuex docs explain how to do it manually, but our module can take care of all that for us, keeping most of the logic under the hood.
 
@@ -198,7 +201,7 @@ export default createStore({
 })
 ```
 
-Remember to add it manually if you don't use `generate` option.
+Remember to add it manually if you don't use the `generate` option.
 
 If we don't want to use `services` folder, we can just pass services with `service('serviceName')`. In such a case we need to additionally import `service` function.
 
@@ -328,7 +331,7 @@ Remember that if you don't use `generate` but still want to customize the plugin
 
 ## Default Middleware
 
-The available middleware you can `generate` is very basic. If the route is public (included in `auth/publicPages` array) and user logged in, it will pass us through. Otherwise, we'll move to route specified by `redirect` option.
+The available middleware you can `generate` is very basic. If the route is public (included in `auth/publicPages` array) and the user is logged in, it will pass us through. Otherwise, we'll move to the route specified by the `redirect` option.
 
 ```js
 export default function ({ store, redirect, route }) {
@@ -339,7 +342,7 @@ export default function ({ store, redirect, route }) {
 }
 ```
 
-If you prefer more complex solution, just overwrite the file (or create one if you don't use `generate` option).
+If you prefer a more complex solution, just overwrite the file (or create one if you don't use `generate` option).
 
 Unfortunately the module can't register our middleware itself, so we still need to do it manually in `nuxt.config.js`:
 
