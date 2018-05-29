@@ -60,8 +60,7 @@ First, let's add `nuxt-feathers-vuex` dependency using yarn or npm to your proje
 ```
 $ npm install nuxt-feathers-vuex
 or
-$ yarn add nuxt-feathers-vuxt
-$ yarn install
+$ yarn add nuxt-feathers-vuex
 ```
 
 Now it's time to register Nuxt-Feathers-Vuex as a module in `nuxt.config.js`. Let's add a middleware too while we're at it.
